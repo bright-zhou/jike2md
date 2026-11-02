@@ -2,7 +2,7 @@
  * jike2md bookmarklet —— 在 jike 作者主页一键导出全部动态为 Markdown。
  * 用法：在 web.okjike.com/u/<username> 页面点击本书签；token 取自本页 localStorage 的
  *       JK_ACCESS_TOKEN，请求只发往 jike 官方接口 api.ruguoapp.com，不经任何第三方。
- * 构建：node bookmarklet/build.mjs → 生成 bookmarklet/index.html（拖拽 / 复制安装页）。
+ * 构建：node build.mjs → 生成 index.html（拖拽 / 复制安装页）。
  * 逻辑要点：loadMoreKey 游标原样回传、按 id 去重、250ms 礼貌间隔、转发原文深度扫描。
  */
 (function () {
