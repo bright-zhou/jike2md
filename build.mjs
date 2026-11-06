@@ -1,7 +1,7 @@
 // 构建 jike2md bookmarklet 安装页：读取 jike2md.src.js，编码为 javascript: URL，
 // 生成 index.html —— 面向开源场景的三步引导式安装页（中英双语，可切换）。
 // 品牌主色：即刻黄（呼应宿主平台），CTA 用黄底深字保证对比度。
-// 用法：node bookmarklet/build.mjs
+// 用法：node build.mjs
 import { readFileSync, writeFileSync } from 'node:fs';
 
 const src = readFileSync(new URL('./jike2md.src.js', import.meta.url), 'utf8');
@@ -14,12 +14,12 @@ const srcEsc = src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&
 // ---------- 中英文案（页面默认渲染中文；EN 随浏览器语言自动选择，可手动切换并记忆） ----------
 const T = {
   zh: {
-    title: 'jike2md · 一键导出即刻动态为 Markdown —— 安装页',
+    title: 'jike2md · 一键导出即刻动态为 Markdown',
     h1: '即刻作者动态，<span class="acc">一键变 Markdown</span>',
     sub: '在作者主页点一下书签，TA 发过的每一条动态立刻成为一个 .md 文件 —— 留存、回顾、检索，或导入 NotebookLM 等任何工具，怎么用由你决定。',
     flow1: '打开作者主页', flow2: '点一下书签', flow3: 'markdown到手',
     f1t: '一次点击，全量导出', f1d: '自动翻页抓取该作者的全部动态，含图片链接、原文链接；转发的帖子会附上被转原文。',
-    f2t: '零安装负担', f2d: '不上应用商店、不装扩展：往书签栏拖一次，永久可用，无需更新维护。',
+    f2t: '零安装负担', f2d: '不上应用商店、不装扩展：往书签栏拖一次就能用。即刻若调整接口，重新拖一次即可。',
     f3t: '数据不出你的浏览器', f3d: 'token 取自你自己的登录态，请求只发往即刻官方接口，全程没有第三方服务器。',
     f4t: '单文件源码可审计', f4d: '全部逻辑就在一个源码文件里，本页可直接展开查看，安装前逐行检查。',
     h2: '三步安装（约 1 分钟，只需一次）',
@@ -29,7 +29,7 @@ const T = {
     s2b: '按住下面的按钮，拖到浏览器上方的书签栏里松手：',
     s2hint: '拖不动或不喜欢拖拽？用手动方式，效果完全一样。',
     manualSum: '手动安装（复制代码建书签）',
-    manualBody: '右键书签栏 → 「添加网页」，名称随意（如 <code>🚀jike2md</code>），网址粘贴下面代码框的全部内容：',
+    manualBody: '右键书签栏 → 「添加网页」，名称随意（如 <code>🚀jike2md</code>），点下面的按钮复制书签代码，粘贴到网址栏：',
     copyBtn: '复制代码',
     prefixNote: '注意：部分浏览器往地址栏粘贴时会自动剥掉开头的 <code>javascript:</code> 前缀 —— 请在「添加网页」弹窗的网址栏里粘贴，并确认开头是 <code>javascript:</code>。',
     s3t: '打开一个即刻作者主页，点书签试一次',
@@ -48,19 +48,23 @@ const T = {
     q4: '我的数据安全吗？',
     a4: 'token 读自你自己浏览器的 localStorage，请求<b>只发往即刻官方接口</b> api.ruguoapp.com，不经任何第三方服务器；导出文件直接从浏览器下载。全部逻辑在单文件 <code>jike2md.src.js</code> 中，安装前可完整审计（见下）。',
     srcH: '源码（透明可审计）',
-    srcNote: '这就是拖进书签栏的那段代码的全部内容（安装页会把它压缩编码成一条 javascript: 链接，逻辑一字不差）。也可以直接查看仓库里的 <code>jike2md.src.js</code>。',
+    srcNote: '这就是书签里那段代码的可读形式 —— 和上面「复制代码」拿到的是同一段逻辑，一个可读、一个已压缩编码。也可以直接查看仓库里的 <code>jike2md.src.js</code>。',
     srcSum: '展开查看完整源码',
     footer: 'jike2md · 数据不出你的浏览器 · 单文件源码，可展开查看',
+    mobile: '请在电脑浏览器的书签栏中使用 —— 手机浏览器不支持书签。',
+    legalH: '使用边界',
+    legal1: '本工具是个人开源项目，<b>与即刻官方无隶属关系</b>。',
+    legal2: '请仅用于导出你自己的内容，或已获作者授权的内容。导出文件的著作权归原发帖作者，请勿公开传播或用于商业用途。使用本工具即表示你自行承担相关责任。',
     copied: '已复制，去书签栏右键 → 添加网页 → 粘贴',
-    copyFail: '复制失败，请在代码框内 Ctrl+A 全选后 Ctrl+C',
+    copyFail: '复制失败：请刷新页面重试，或改用拖拽方式安装',
   },
   en: {
-    title: 'jike2md · Export Jike posts to Markdown in one click — Install',
+    title: 'jike2md · Export Jike posts to Markdown in one click',
     h1: 'An author\'s entire Jike feed, <span class="acc">one click to Markdown</span>',
     sub: 'Click a bookmark on any author\'s profile and every post they\'ve made becomes a single .md file — keep it, revisit it, search it, or import it into NotebookLM or anything else. Your call.',
     flow1: 'Open the author\'s profile', flow2: 'Click the bookmark', flow3: 'Get the markdown',
     f1t: 'One click, full export', f1d: 'Auto-paginates through every post of that author, with image and source links; reposts include the original content.',
-    f2t: 'Zero install burden', f2d: 'No app store, no extension: drag it onto your bookmarks bar once and it works forever — nothing to update.',
+    f2t: 'Zero install burden', f2d: 'No app store, no extension: drag it onto your bookmarks bar once and it works. If Jike changes its API, drag it again.',
     f3t: 'Data never leaves your browser', f3d: 'The token comes from your own login; requests go only to Jike\'s official API. No third-party servers involved.',
     f4t: 'Single-file, auditable source', f4d: 'All logic lives in one source file — expand it right on this page and review it line by line before installing.',
     h2: 'Set up in 3 steps (about a minute, once only)',
@@ -70,7 +74,7 @@ const T = {
     s2b: 'Press and hold the button below, drag it onto the bookmarks bar at the top of the browser, and release:',
     s2hint: 'Can\'t drag, or prefer not to? The manual way below works exactly the same.',
     manualSum: 'Manual install (copy code, create bookmark)',
-    manualBody: 'Right-click the bookmarks bar → "Add page", name it anything (e.g. <code>🚀jike2md</code>), and paste everything in the box below into the URL field:',
+    manualBody: 'Right-click the bookmarks bar → "Add page", name it anything (e.g. <code>🚀jike2md</code>), then click the button below to copy the code and paste it into the URL field:',
     copyBtn: 'Copy code',
     prefixNote: 'Note: some browsers strip the leading <code>javascript:</code> prefix when you paste into the address bar — paste into the URL field of the "Add page" dialog and make sure it starts with <code>javascript:</code>.',
     s3t: 'Open a Jike author profile and try it once',
@@ -89,11 +93,15 @@ const T = {
     q4: 'Is my data safe?',
     a4: 'The token is read from your own browser\'s localStorage and requests go <b>only to Jike\'s official API</b> (api.ruguoapp.com) — no third-party servers; the file downloads straight from the browser. All logic lives in the single file <code>jike2md.src.js</code>, fully auditable below.',
     srcH: 'Source (transparent & auditable)',
-    srcNote: 'This is the entire code that goes into the bookmark (this page encodes it into a single javascript: link, logic unchanged). You can also read <code>jike2md.src.js</code> in the repo.',
+    srcNote: 'This is the readable form of the code inside the bookmark — same logic as what the "Copy code" button above gives you, one readable and one URI-encoded. You can also read <code>jike2md.src.js</code> in the repo.',
     srcSum: 'Expand to view the full source',
     footer: 'jike2md · Your data never leaves your browser · Single-file source, view it right here',
+    mobile: 'Use this from a desktop browser\'s bookmarks bar — mobile browsers do not support bookmarks.',
+    legalH: 'Usage boundaries',
+    legal1: 'This is a personal open-source project, <b>not affiliated with Jike in any way</b>.',
+    legal2: 'Use it only to export your own content, or content you have permission to export. Copyright in exported posts belongs to their authors — please do not redistribute or use commercially. By using this tool you accept responsibility for how you use it.',
     copied: 'Copied — right-click the bookmarks bar → Add page → paste',
-    copyFail: 'Copy failed — click into the box, select all (Ctrl+A) and press Ctrl+C',
+    copyFail: 'Copy failed — refresh the page and try again, or drag the button to your bookmarks bar instead',
   },
 };
 const dictJson = JSON.stringify(T);
@@ -103,7 +111,15 @@ const html = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>jike2md · 一键导出即刻动态为 Markdown —— 安装页</title>
+<title>jike2md · 一键导出即刻动态为 Markdown</title>
+<meta name="description" content="jike2md：在即刻作者主页点一下书签，把 TA 的全部动态导出为一个 Markdown 文件。纯浏览器本地运行，token 与数据不经过任何第三方服务器。">
+<meta name="theme-color" content="#151412">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%231e1c18'/%3E%3Cpath d='M36 26 H64 A6 6 0 0 1 70 32 V74 L50 60 L30 74 V32 A6 6 0 0 1 36 26 Z' fill='none' stroke='%23ffd23f' stroke-width='9' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jike2md.wozai.online/">
+<meta property="og:title" content="jike2md · 一键导出即刻动态为 Markdown">
+<meta property="og:description" content="在即刻作者主页点一下书签，把 TA 的全部动态导出为一个 Markdown 文件。纯浏览器本地运行，不经过任何第三方服务器。">
+<meta name="twitter:card" content="summary">
 <style>
   :root {
     color-scheme: dark;
@@ -164,7 +180,6 @@ const html = `<!DOCTYPE html>
   #bm:hover { filter: brightness(1.06); }
   details { margin-top: 14px; }
   summary { cursor: pointer; color: var(--acc); }
-  #code { width: 100%; margin-top: 10px; background: #101010; color: #ffe08a; border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: 12px/1.5 monospace; white-space: pre; overflow: auto; }
   #srcview { background: #101010; border: 1px solid var(--line); border-radius: 8px; padding: 14px; font: 12px/1.6 monospace; color: #ffe08a; overflow: auto; white-space: pre; }
   button { padding: 7px 16px; border-radius: 8px; border: 1px solid #454030; background: var(--panel2); color: var(--text); cursor: pointer; }
   button:hover { border-color: var(--acc); color: var(--acc); }
@@ -173,6 +188,12 @@ const html = `<!DOCTYPE html>
   a:hover { text-decoration: underline; }
   code { background: var(--panel2); padding: 1px 6px; border-radius: 4px; font-size: 13px; }
   .note { color: var(--mut); font-size: 13px; }
+
+  /* ---------- 使用边界 ---------- */
+  .legal { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 22px; margin-top: 12px; }
+  .legal p { margin: 0 0 10px; color: var(--mut); font-size: 13px; line-height: 1.7; }
+  .legal p:last-child { margin-bottom: 0; }
+  .legal b { color: var(--text); }
 
   /* ---------- FAQ ---------- */
   table { border-collapse: collapse; width: 100%; margin-top: 12px; }
@@ -197,6 +218,7 @@ const html = `<!DOCTYPE html>
     <span data-i18n="flow2">点一下书签</span><span class="arr">→</span>
     <span data-i18n="flow3">markdown到手</span>
   </div>
+  <p class="note" style="margin-top:16px" data-i18n="mobile">请在电脑浏览器的书签栏中使用 —— 手机浏览器不支持书签。</p>
 </header>
 
 <section class="feats">
@@ -206,7 +228,7 @@ const html = `<!DOCTYPE html>
   </div>
   <div class="feat">
     <b><span class="fi">🧩</span><span data-i18n="f2t">零安装负担</span></b>
-    <p data-i18n="f2d">不上应用商店、不装扩展：往书签栏拖一次，永久可用，无需更新维护。</p>
+    <p data-i18n="f2d">不上应用商店、不装扩展：往书签栏拖一次就能用。即刻若调整接口，重新拖一次即可。</p>
   </div>
   <div class="feat">
     <b><span class="fi">🔒</span><span data-i18n="f3t">数据不出你的浏览器</span></b>
@@ -232,9 +254,8 @@ const html = `<!DOCTYPE html>
   <p class="note" data-i18n="s2hint">拖不动或不喜欢拖拽？用手动方式，效果完全一样。</p>
   <details>
     <summary data-i18n="manualSum">手动安装（复制代码建书签）</summary>
-    <p style="margin-bottom:6px" data-i18n="manualBody">右键书签栏 → 「添加网页」，名称随意（如 <code>🚀jike2md</code>），网址粘贴下面代码框的全部内容：</p>
+    <p style="margin-bottom:6px" data-i18n="manualBody">右键书签栏 → 「添加网页」，名称随意（如 <code>🚀jike2md</code>），点下面的按钮复制书签代码，粘贴到网址栏：</p>
     <p><button id="copy" data-i18n="copyBtn">复制代码</button><span id="hint"></span></p>
-    <textarea id="code" rows="6" readonly spellcheck="false">${attr}</textarea>
     <p class="note" data-i18n="prefixNote">注意：部分浏览器往地址栏粘贴时会自动剥掉开头的 <code>javascript:</code> 前缀 —— 请在「添加网页」弹窗的网址栏里粘贴，并确认开头是 <code>javascript:</code>。</p>
   </details>
 </div>
@@ -258,11 +279,17 @@ const html = `<!DOCTYPE html>
 </table>
 
 <h2 data-i18n="srcH">源码（透明可审计）</h2>
-<p class="note" data-i18n="srcNote">这就是拖进书签栏的那段代码的全部内容（安装页会把它压缩编码成一条 javascript: 链接，逻辑一字不差）。也可以直接查看仓库里的 <code>jike2md.src.js</code>。</p>
+<p class="note" data-i18n="srcNote">这就是书签里那段代码的可读形式 —— 和上面「复制代码」拿到的是同一段逻辑，一个可读、一个已压缩编码。也可以直接查看仓库里的 <code>jike2md.src.js</code>。</p>
 <details>
   <summary data-i18n="srcSum">展开查看完整源码</summary>
   <pre id="srcview">${srcEsc}</pre>
 </details>
+
+<h2 data-i18n="legalH">使用边界</h2>
+<div class="legal">
+  <p data-i18n="legal1">本工具是个人开源项目，<b>与即刻官方无隶属关系</b>。</p>
+  <p data-i18n="legal2">请仅用于导出你自己的内容，或已获作者授权的内容。导出文件的著作权归原发帖作者，请勿公开传播或用于商业用途。使用本工具即表示你自行承担相关责任。</p>
+</div>
 
 <footer data-i18n="footer">jike2md · 数据不出你的浏览器 · 单文件源码，可展开查看</footer>
 
@@ -301,16 +328,22 @@ const html = `<!DOCTYPE html>
     });
 
     document.getElementById('copy').addEventListener('click', function () {
-      var ta = document.getElementById('code');
+      var bmUrl = document.getElementById('bm').getAttribute('href');
       var d = I18N[cur];
       var hint = function (s) { document.getElementById('hint').textContent = s; };
       var fallback = function () {
-        ta.focus(); ta.select();
+        var ta = document.createElement('textarea');
+        ta.value = bmUrl;
+        ta.setAttribute('readonly', '');
+        ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+        document.body.appendChild(ta);
+        ta.select();
         try { document.execCommand('copy'); hint(d.copied); }
         catch (e) { hint(d.copyFail); }
+        document.body.removeChild(ta);
       };
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(ta.value).then(function () { hint(d.copied); }, fallback);
+        navigator.clipboard.writeText(bmUrl).then(function () { hint(d.copied); }, fallback);
       } else { fallback(); }
     });
   })();
@@ -320,4 +353,4 @@ const html = `<!DOCTYPE html>
 `;
 
 writeFileSync(new URL('./index.html', import.meta.url), html);
-console.log('bookmarklet 长度:', bm.length, '字符 → 已生成 bookmarklet/index.html（中英双语）');
+console.log('bookmarklet 长度:', bm.length, '字符 → 已生成 index.html（中英双语）');
