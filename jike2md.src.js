@@ -7,7 +7,7 @@
  *       JK_ACCESS_TOKEN，请求只发往 jike 官方接口 api.ruguoapp.com，不经任何第三方。
  * 构建：node build.mjs → 生成 index.html（拖拽 / 复制安装页）。
  * 逻辑要点：loadMoreKey 游标原样回传、按 id 去重、250ms 礼貌间隔、转发原文深度扫描；
- *           翻页上限 300 页、可中途取消（已抓取的照常导出）、网络层与 5xx/429 重试 2 次。
+ *           翻页安全阀 2000 页、可中途取消（已抓取的照常导出）、网络层与 5xx/429 重试 2 次。
  */
 (function () {
   'use strict';
@@ -24,7 +24,7 @@
   var msg = document.createElement('span');
   box.appendChild(msg);
   document.body.appendChild(box);
-  function say(s) { msg.textContent = 'jike2md：' + s; }
+  function say(s) { msg.textContent = 'jike2md · ' + s; }
 
   // 取消：只停抓取，已抓到的照常导出。没有续传机制，丢弃已抓内容的代价太大。
   var cancelled = false;
@@ -41,7 +41,8 @@
 
   var API = 'https://api.ruguoapp.com/1.0/personalUpdate/single';
   var LIMIT = 20, DELAY = 250;
-  var MAX_PAGES = 300;  // 300 页 × 20 条 = 6000 条；防止异常游标导致长时间空转
+  var MAX_PAGES = 2000;  // 2000 页 × 20 条 = 4 万条。这是防异常游标空转的安全阀，不是使用配额：
+                         // 正常账号远到不了，真正想导全的用户不会被它卡住；想提前停就点浮层上的「取消」。
   var MAX_RETRY = 2;    // 仅用于网络层失败 / 429 / 5xx；401、403 属凭据问题，不重试
   var seen = Object.create(null), order = [], loadMoreKey, page = 0, authorName = USERNAME;
   function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
@@ -177,9 +178,7 @@
         await new Promise(function (r) { setTimeout(r, DELAY); });
       }
       if (order.length === 0) throw new Error(cancelled ? '已取消，未获取到任何内容。' : '未获取到任何动态（该作者可能没有公开动态，或接口已变更）。');
-      if (cancelled) say('已取消，导出已获取的 ' + order.length + ' 条…');
-      else if (capped) say('已达 ' + MAX_PAGES + ' 页上限，导出已获取的 ' + order.length + ' 条…');
-      else say('共 ' + order.length + ' 条，组装 Markdown…');
+      say((cancelled || capped) ? '正在导出已获取的 ' + order.length + ' 条…' : '共 ' + order.length + ' 条，组装 Markdown…');
       var header = '---\nauthor: ' + authorName + '\nauthor_id: ' + USERNAME + '\nextracted_at: ' + new Date().toISOString()
         + '\npost_count: ' + order.length + '\n---\n\n# ' + authorName + ' 的即刻动态（共 ' + order.length + ' 条）\n\n';
       var md = header + order.map(toMarkdownItem).join('\n');
@@ -190,7 +189,7 @@
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
       say(cancelled ? '已取消：导出已获取的 ' + order.length + ' 条，已开始下载'
-        : capped ? '已达 ' + MAX_PAGES + ' 页上限：导出已获取的 ' + order.length + ' 条，已开始下载'
+        : capped ? '已达 ' + MAX_PAGES + ' 页安全上限：导出已获取的 ' + order.length + ' 条，已开始下载'
         : '完成：' + order.length + ' 条，已开始下载');
       setTimeout(function () { box.remove(); }, 5000);
     } catch (e) {

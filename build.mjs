@@ -28,6 +28,7 @@ const T = {
     s2t: '把黄色按钮拖进书签栏',
     s2b: '按住下面的按钮，拖到浏览器上方的书签栏里松手：',
     s2hint: '拖不动或不喜欢拖拽？用手动方式，效果完全一样。',
+    clickHint: '请按住按钮拖到书签栏 —— 直接点击不会安装。',
     manualSum: '手动安装（复制代码建书签）',
     manualBody: '右键书签栏 → 「添加网页」，名称随意（如 <code>🚀jike2md</code>），点下面的按钮复制书签代码，粘贴到网址栏：',
     copyBtn: '复制代码',
@@ -73,6 +74,7 @@ const T = {
     s2t: 'Drag the yellow button onto the bar',
     s2b: 'Press and hold the button below, drag it onto the bookmarks bar at the top of the browser, and release:',
     s2hint: 'Can\'t drag, or prefer not to? The manual way below works exactly the same.',
+    clickHint: 'Hold and drag it onto your bookmarks bar — clicking does not install it.',
     manualSum: 'Manual install (copy code, create bookmark)',
     manualBody: 'Right-click the bookmarks bar → "Add page", name it anything (e.g. <code>🚀jike2md</code>), then click the button below to copy the code and paste it into the URL field:',
     copyBtn: 'Copy code',
@@ -180,6 +182,7 @@ const html = `<!DOCTYPE html>
     font-weight: 600; font-size: 17px; border: 1px solid #ffd43b; box-shadow: 0 4px 20px rgba(255, 210, 63, .22);
   }
   #bm:hover { filter: brightness(1.06); }
+  #clickhint { display: inline-block; margin-left: 12px; font-size: 13px; color: var(--acc); vertical-align: middle; }
   details { margin-top: 14px; }
   summary { cursor: pointer; color: var(--acc); }
   #srcview { background: #101010; border: 1px solid var(--line); border-radius: 8px; padding: 14px; font: 12px/1.6 monospace; color: #ffe08a; overflow: auto; white-space: pre; }
@@ -252,7 +255,7 @@ const html = `<!DOCTYPE html>
 <div class="step">
   <h3><span class="no">2</span><span data-i18n="s2t">把黄色按钮拖进书签栏</span></h3>
   <p data-i18n="s2b">按住下面的按钮，拖到浏览器上方的书签栏里松手：</p>
-  <p><a id="bm" href="${attr}">🚀jike2md</a></p>
+  <p><a id="bm" href="${attr}">🚀jike2md</a><span id="clickhint"></span></p>
   <p class="note" data-i18n="s2hint">拖不动或不喜欢拖拽？用手动方式，效果完全一样。</p>
   <details>
     <summary data-i18n="manualSum">手动安装（复制代码建书签）</summary>
@@ -314,6 +317,8 @@ const html = `<!DOCTYPE html>
         if (d[k] != null) els[i].innerHTML = d[k];
       }
       document.getElementById('shortcut').textContent = shortcutLabel;
+      var ch = document.getElementById('clickhint');
+      if (ch) ch.textContent = '';
       document.getElementById('langbtn').textContent = lang === 'zh' ? 'EN' : '中文';
       try { localStorage.setItem('jike2md_lang', lang); } catch (e) {}
       cur = lang;
@@ -327,6 +332,13 @@ const html = `<!DOCTYPE html>
 
     document.getElementById('langbtn').addEventListener('click', function () {
       apply(cur === 'zh' ? 'en' : 'zh');
+    });
+
+    // 这个按钮本身就是一条 javascript: 书签，直接点击会在安装页上执行书签代码
+    // （路径不是 /u/…，只会弹一句「请先打开作者主页」）。这里拦掉点击，改成提示拖拽。
+    document.getElementById('bm').addEventListener('click', function (e) {
+      e.preventDefault();
+      document.getElementById('clickhint').textContent = I18N[cur].clickHint;
     });
 
     document.getElementById('copy').addEventListener('click', function () {
