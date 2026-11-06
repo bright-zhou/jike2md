@@ -44,4 +44,6 @@ node build.mjs   # 读取 jike2md.src.js，生成 index.html
 
 ## 许可
 
-源码公开供阅读与个人使用，保留其他权利。
+MIT，见 [LICENSE](LICENSE)。
+
+个人项目，不承诺处理 issue 或提供技术支持；欢迎自行 fork 使用。
