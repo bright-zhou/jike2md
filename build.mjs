@@ -104,7 +104,9 @@ const T = {
     copyFail: 'Copy failed — refresh the page and try again, or drag the button to your bookmarks bar instead',
   },
 };
-const dictJson = JSON.stringify(T);
+// 内联到 <script> 里，必须转义 < —— 否则文案中出现 </script> 会提前截断脚本。
+// \u003c 在 JSON 与 JS 字符串中都是合法转义，解析回来的值不变。
+const dictJson = JSON.stringify(T).replace(/</g, '\\u003c');
 
 const html = `<!DOCTYPE html>
 <html lang="zh-CN">

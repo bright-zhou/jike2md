@@ -6,7 +6,8 @@
  * 用法：在 web.okjike.com/u/<username> 页面点击本书签；token 取自本页 localStorage 的
  *       JK_ACCESS_TOKEN，请求只发往 jike 官方接口 api.ruguoapp.com，不经任何第三方。
  * 构建：node build.mjs → 生成 index.html（拖拽 / 复制安装页）。
- * 逻辑要点：loadMoreKey 游标原样回传、按 id 去重、250ms 礼貌间隔、转发原文深度扫描。
+ * 逻辑要点：loadMoreKey 游标原样回传、按 id 去重、250ms 礼貌间隔、转发原文深度扫描；
+ *           翻页上限 300 页、可中途取消（已抓取的照常导出）、网络层与 5xx/429 重试 2 次。
  */
 (function () {
   'use strict';
@@ -20,12 +21,30 @@
   var box = document.createElement('div');
   box.style.cssText = 'position:fixed;top:16px;right:16px;z-index:2147483647;background:#202124;color:#e8eaed;'
     + 'padding:10px 14px;border-radius:8px;font:13px/1.6 Consolas,monospace;box-shadow:0 2px 12px rgba(0,0,0,.4);max-width:360px';
+  var msg = document.createElement('span');
+  box.appendChild(msg);
   document.body.appendChild(box);
-  function say(s) { box.textContent = 'jike2md：' + s; }
+  function say(s) { msg.textContent = 'jike2md：' + s; }
+
+  // 取消：只停抓取，已抓到的照常导出。没有续传机制，丢弃已抓内容的代价太大。
+  var cancelled = false;
+  var stopLink = document.createElement('a');
+  stopLink.textContent = '取消';
+  stopLink.href = '#';
+  stopLink.style.cssText = 'margin-left:10px;color:#ffd23f;font-weight:600;text-decoration:none';
+  stopLink.addEventListener('click', function (e) {
+    e.preventDefault();
+    cancelled = true;
+    stopLink.textContent = '取消中…';
+  });
+  box.appendChild(stopLink);
 
   var API = 'https://api.ruguoapp.com/1.0/personalUpdate/single';
   var LIMIT = 20, DELAY = 250;
+  var MAX_PAGES = 300;  // 300 页 × 20 条 = 6000 条；防止异常游标导致长时间空转
+  var MAX_RETRY = 2;    // 仅用于网络层失败 / 429 / 5xx；401、403 属凭据问题，不重试
   var seen = Object.create(null), order = [], loadMoreKey, page = 0, authorName = USERNAME;
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function fmtLocal(iso) {
@@ -94,14 +113,13 @@
     return lines.join('\n');
   }
 
-  (async function run() {
-    try {
-      for (;;) {
-        page++;
-        say('第 ' + page + ' 页抓取中…（累计 ' + order.length + ' 条）');
-        var body = { limit: LIMIT, username: USERNAME };
-        if (loadMoreKey) body.loadMoreKey = loadMoreKey;
-        var res = await fetch(API, {
+  // 单页请求 + 有界重试。分层：网络层异常 / 429 / 5xx 可重试；401、403 立即失败（重试无意义）。
+  async function requestPage(body) {
+    var retry = 0;
+    for (;;) {
+      var res;
+      try {
+        res = await fetch(API, {
           method: 'POST',
           headers: {
             'accept': 'application/json, text/plain, */*',
@@ -111,10 +129,41 @@
           },
           body: JSON.stringify(body),
         });
-        if (res.status === 401 || res.status === 403) throw new Error('token 无效或已过期（HTTP ' + res.status + '），请刷新页面或重新登录 jike 后重试。');
-        if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + res.statusText);
-        var json = await res.json();
-        if (!json.success) throw new Error('接口 success=false：' + JSON.stringify(json).slice(0, 120));
+      } catch (e) {
+        if (retry >= MAX_RETRY) throw new Error('网络请求失败（已重试 ' + MAX_RETRY + ' 次）：' + ((e && e.message) || e));
+        retry++;
+        say('网络异常，重试中…（' + retry + '/' + MAX_RETRY + '）');
+        await sleep(700 * retry);
+        continue;
+      }
+      if (res.status === 401 || res.status === 403) {
+        throw new Error('token 无效或已过期（HTTP ' + res.status + '），请刷新页面或重新登录 jike 后重试。');
+      }
+      if (res.status === 429 || res.status >= 500) {
+        if (retry >= MAX_RETRY) throw new Error('服务端返回 HTTP ' + res.status + '（已重试 ' + MAX_RETRY + ' 次），请稍后再试。');
+        retry++;
+        say('服务端 ' + res.status + '，重试中…（' + retry + '/' + MAX_RETRY + '）');
+        await sleep(700 * retry);
+        continue;
+      }
+      if (!res.ok) throw new Error('HTTP ' + res.status + ' ' + res.statusText);
+      var json = await res.json();
+      if (!json.success) throw new Error('接口 success=false：' + JSON.stringify(json).slice(0, 120));
+      return json;
+    }
+  }
+
+  (async function run() {
+    try {
+      var capped = false;
+      for (;;) {
+        if (cancelled) break;
+        if (page >= MAX_PAGES) { capped = true; break; }
+        page++;
+        say('第 ' + page + ' 页抓取中…（累计 ' + order.length + ' 条）');
+        var body = { limit: LIMIT, username: USERNAME };
+        if (loadMoreKey) body.loadMoreKey = loadMoreKey;
+        var json = await requestPage(body);
         var items = json.data || [], added = 0;
         items.forEach(function (it) {
           if (it && it.id && !seen[it.id]) {
@@ -127,7 +176,10 @@
         loadMoreKey = next;
         await new Promise(function (r) { setTimeout(r, DELAY); });
       }
-      say('共 ' + order.length + ' 条，组装 Markdown…');
+      if (order.length === 0) throw new Error(cancelled ? '已取消，未获取到任何内容。' : '未获取到任何动态（该作者可能没有公开动态，或接口已变更）。');
+      if (cancelled) say('已取消，导出已获取的 ' + order.length + ' 条…');
+      else if (capped) say('已达 ' + MAX_PAGES + ' 页上限，导出已获取的 ' + order.length + ' 条…');
+      else say('共 ' + order.length + ' 条，组装 Markdown…');
       var header = '---\nauthor: ' + authorName + '\nauthor_id: ' + USERNAME + '\nextracted_at: ' + new Date().toISOString()
         + '\npost_count: ' + order.length + '\n---\n\n# ' + authorName + ' 的即刻动态（共 ' + order.length + ' 条）\n\n';
       var md = header + order.map(toMarkdownItem).join('\n');
@@ -137,7 +189,9 @@
       a.download = 'jike-' + authorName.replace(/[\\/:*?"<>|]/g, '_') + '-' + new Date().toISOString().slice(0, 10) + '.md';
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function () { URL.revokeObjectURL(url); }, 30000);
-      say('完成：' + order.length + ' 条，已开始下载');
+      say(cancelled ? '已取消：导出已获取的 ' + order.length + ' 条，已开始下载'
+        : capped ? '已达 ' + MAX_PAGES + ' 页上限：导出已获取的 ' + order.length + ' 条，已开始下载'
+        : '完成：' + order.length + ' 条，已开始下载');
       setTimeout(function () { box.remove(); }, 5000);
     } catch (e) {
       say('出错：' + ((e && e.message) || e));
