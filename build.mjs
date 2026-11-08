@@ -40,6 +40,7 @@ const T = {
     tail: '以后每次使用：打开作者主页 → 点书签 → 拿文件。就这一步。',
     faqH: '常见问题',
     thQ: '现象', thA: '原因与解决',
+    tblCap: '常见问题与解决方法',
     q1: '点了书签毫无反应',
     a1: '书签只能在 <code>web.okjike.com</code> 页面上工作；且需确认书签网址以 <code>javascript:</code> 开头（粘贴时前缀可能被浏览器剥掉，手动补上）。',
     q2: '浮层提示 token 无效 / 已过期',
@@ -88,6 +89,7 @@ const T = {
     tail: 'Every time after that: open a profile → click the bookmark → get the file. That\'s it.',
     faqH: 'FAQ',
     thQ: 'Symptom', thA: 'Cause & fix',
+    tblCap: 'Frequently asked questions',
     q1: 'Nothing happens when I click the bookmark',
     a1: 'It only works on <code>web.okjike.com</code> pages; also make sure the bookmark URL starts with <code>javascript:</code> (the prefix may get stripped when pasting — add it back manually).',
     q2: 'The overlay says the token is invalid / expired',
@@ -131,21 +133,31 @@ const html = `<!DOCTYPE html>
   :root {
     color-scheme: dark;
     --bg: #151412; --panel: #1e1c18; --panel2: #262319; --line: #332f24;
-    --text: #eceef1; --mut: #a09a8c;
-    --acc: #ffd23f;        /* 即刻黄（品牌主色） */
-    --acc-dim: #f0b429;    /* 深一档黄 */
-    --acc-ink: #1a1405;    /* 黄底上的深色文字 */
+    --text: #eceef1; --text-dim: #c9c6bd; --mut: #a09a8c;
+    --acc: #ffd23f;         /* 即刻黄（品牌主色） */
+    --acc-strong: #ffd43b;  /* 渐变亮端 */
+    --acc-deep: #f0b429;    /* 渐变暗端 */
+    --acc-ink: #1a1405;     /* 黄底上的深色文字 */
+    --line-soft: #454030;   /* kbd 与次按钮描边 */
+    --line-hover: #4a4331;  /* 卡片 hover 描边 */
+    --code-bg: #101010; --code-ink: #ffe08a;
+    --glow: #332a12;        /* 首屏光晕 */
   }
   * { box-sizing: border-box; }
   body {
     margin: 0; padding: 0 20px 90px;
     font: 15px/1.75 -apple-system, "Segoe UI", "Microsoft YaHei", sans-serif;
     color: var(--text);
-    background: radial-gradient(900px 420px at 50% -120px, #332a12 0%, var(--bg) 62%) fixed var(--bg);
+    background: radial-gradient(900px 420px at 50% -120px, var(--glow) 0%, var(--bg) 62%) fixed var(--bg);
   }
   .wrap { max-width: 780px; margin: 0 auto; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
 
-  .langbtn { position: fixed; top: 14px; right: 16px; z-index: 50; background: var(--panel2); border: 1px solid var(--line); color: var(--mut); border-radius: 999px; padding: 5px 16px; font-size: 13px; cursor: pointer; }
+  .langbtn { position: fixed; top: 14px; right: 16px; z-index: 50; display: inline-flex; align-items: center; justify-content: center; min-height: 44px; background: var(--panel2); border: 1px solid var(--line); color: var(--mut); border-radius: 999px; padding: 0 16px; font-size: 13px; cursor: pointer; }
   .langbtn:hover { border-color: var(--acc); color: var(--acc); }
 
   /* ---------- 首屏：品牌与价值主张 ---------- */
@@ -164,7 +176,7 @@ const html = `<!DOCTYPE html>
   .flow .arr { color: var(--acc); font-size: 16px; padding: 0; border: none; background: none; }
 
   /* ---------- 卖点四宫格：图标与标题同行 ---------- */
-  .feats { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; margin: 40px 0 0; }
+  .feats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 14px; margin: 40px 0 0; }
   .feat { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
   .feat b { display: flex; align-items: center; gap: 10px; margin: 0 0 4px; font-size: 15px; }
   .feat .fi { font-size: 20px; }
@@ -173,23 +185,23 @@ const html = `<!DOCTYPE html>
   /* ---------- 步骤 ---------- */
   h2 { font-size: 20px; margin: 60px 0 4px; }
   .step { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 22px 26px; margin-top: 16px; }
-  .step:hover { border-color: #4a4331; }
+  .step:hover { border-color: var(--line-hover); }
   .step h3 { margin: 0 0 10px; font-size: 16px; }
   .step h3 .no { display: inline-block; width: 26px; height: 26px; line-height: 26px; text-align: center; background: var(--acc); color: var(--acc-ink); border-radius: 50%; font-size: 14px; font-weight: 600; margin-right: 10px; }
-  kbd { background: var(--panel2); border: 1px solid #454030; border-bottom-width: 2px; border-radius: 6px; padding: 1px 8px; font: 13px monospace; }
+  kbd { background: var(--panel2); border: 1px solid var(--line-soft); border-bottom-width: 2px; border-radius: 6px; padding: 1px 8px; font: 13px monospace; }
 
   /* ---------- 拖拽按钮：黄底深字，品牌记忆点 ---------- */
   #bm {
-    display: inline-block; background: linear-gradient(180deg, #ffd43b, #f0b429);
+    display: inline-block; background: linear-gradient(180deg, var(--acc-strong), var(--acc-deep));
     color: var(--acc-ink); padding: 14px 28px; border-radius: 12px; text-decoration: none;
-    font-weight: 600; font-size: 17px; border: 1px solid #ffd43b; box-shadow: 0 4px 20px rgba(255, 210, 63, .22);
+    font-weight: 600; font-size: 17px; border: 1px solid var(--acc-strong); box-shadow: 0 4px 20px rgba(255, 210, 63, .22);
   }
   #bm:hover { filter: brightness(1.06); }
   .bmrow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
   details { margin-top: 14px; }
-  summary { cursor: pointer; color: var(--acc); }
-  #srcview { background: #101010; border: 1px solid var(--line); border-radius: 8px; padding: 14px; font: 12px/1.6 monospace; color: #ffe08a; overflow: auto; white-space: pre; }
-  button { padding: 7px 16px; border-radius: 8px; border: 1px solid #454030; background: var(--panel2); color: var(--text); cursor: pointer; }
+  summary { cursor: pointer; color: var(--acc); padding: 9px 0; }
+  #srcview { background: var(--code-bg); border: 1px solid var(--line); border-radius: 8px; padding: 14px; font: 12px/1.6 monospace; color: var(--code-ink); overflow: auto; white-space: pre; }
+  button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--line-soft); background: var(--panel2); color: var(--text); cursor: pointer; }
   button:hover { border-color: var(--acc); color: var(--acc); }
   #hint { color: var(--acc); font-size: 13px; margin-left: 10px; }
   a { color: var(--acc); }
@@ -207,15 +219,15 @@ const html = `<!DOCTYPE html>
   table { border-collapse: collapse; width: 100%; margin-top: 12px; }
   th, td { border: 1px solid var(--line); padding: 10px 14px; text-align: left; font-size: 14px; vertical-align: top; }
   th { background: var(--panel2); white-space: nowrap; }
-  td { color: #c9c6bd; }
+  td { color: var(--text-dim); }
 
-  footer { margin-top: 64px; color: #6f6a5e; font-size: 13px; border-top: 1px solid var(--line); padding-top: 18px; }
+  footer { margin-top: 64px; color: var(--mut); font-size: 13px; border-top: 1px solid var(--line); padding-top: 18px; }
 </style>
 </head>
 <body>
-<div class="wrap">
+<main class="wrap">
 
-<button id="langbtn" class="langbtn" type="button">EN</button>
+<button id="langbtn" class="langbtn" type="button" aria-label="切换界面语言 / Switch language">EN</button>
 
 <header>
   <div class="logo">🚀jike2md</div>
@@ -258,12 +270,12 @@ const html = `<!DOCTYPE html>
 <div class="step">
   <h3><span class="no">2</span><span data-i18n="s2t">把黄色按钮拖进书签栏</span></h3>
   <p data-i18n="s2b">按住下面的按钮，拖到浏览器上方的书签栏里松手：</p>
-  <p class="bmrow"><a id="bm" href="${attr}">🚀jike2md</a><span class="note" id="clickTip" style="color:var(--acc)" hidden></span></p>
+  <p class="bmrow"><a id="bm" href="${attr}">🚀jike2md</a><span class="note" id="clickTip" role="status" style="color:var(--acc)" hidden></span></p>
   <p class="note" data-i18n="s2hint">拖不动或不喜欢拖拽？用手动方式，效果完全一样。</p>
   <details>
     <summary data-i18n="manualSum">手动安装（复制代码建书签）</summary>
     <p style="margin-bottom:6px" data-i18n="manualBody">右键书签栏 → 「添加网页」，名称随意（如 <code>🚀jike2md</code>），点下面的按钮复制书签代码，粘贴到网址栏：</p>
-    <p><button id="copy" data-i18n="copyBtn">复制代码</button><span id="hint"></span></p>
+    <p><button id="copy" data-i18n="copyBtn">复制代码</button><span id="hint" role="status"></span></p>
     <p class="note" data-i18n="prefixNote">注意：部分浏览器往地址栏粘贴时会自动剥掉开头的 <code>javascript:</code> 前缀 —— 请在「添加网页」弹窗的网址栏里粘贴，并确认开头是 <code>javascript:</code>。</p>
   </details>
 </div>
@@ -279,7 +291,8 @@ const html = `<!DOCTYPE html>
 
 <h2 data-i18n="faqH">常见问题</h2>
 <table>
-  <tr><th data-i18n="thQ">现象</th><th data-i18n="thA">原因与解决</th></tr>
+  <caption class="sr-only" data-i18n="tblCap">常见问题与解决方法</caption>
+  <tr><th scope="col" data-i18n="thQ">现象</th><th scope="col" data-i18n="thA">原因与解决</th></tr>
   <tr><td data-i18n="q1">点了书签毫无反应</td><td data-i18n="a1">书签只能在 <code>web.okjike.com</code> 页面上工作；且需确认书签网址以 <code>javascript:</code> 开头（粘贴时前缀可能被浏览器剥掉，手动补上）。</td></tr>
   <tr><td data-i18n="q2">浮层提示 token 无效 / 已过期</td><td data-i18n="a2">刷新 jike 页面（或退出重登）再点一次即可 —— token 取自你登录后的浏览器本地存储。</td></tr>
   <tr><td data-i18n="q3">导出的条数比作者主页显示的少</td><td data-i18n="a3">确认停留在该作者的主页上再点击（脚本按当前页地址自动识别作者）；「转发且未写评论」的条目会以引用块附上原文，不会丢条。</td></tr>
@@ -302,7 +315,7 @@ const html = `<!DOCTYPE html>
 
 <footer data-i18n="footer">jike2md · 数据不出你的浏览器 · 单文件源码，可展开查看</footer>
 
-</div>
+</main>
 <script>
   var I18N = ${dictJson};
 
