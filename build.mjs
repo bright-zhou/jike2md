@@ -28,7 +28,7 @@ const T = {
     s2t: '把黄色按钮拖进书签栏',
     s2b: '按住下面的按钮，拖到浏览器上方的书签栏里松手：',
     s2hint: '拖不动或不喜欢拖拽？用手动方式，效果完全一样。',
-    clickHint: '请按住按钮拖到书签栏 —— 直接点击不会安装。',
+    clickTip: '这里需要拖拽而不是点击 —— 拖到书签栏即完成安装。',
     manualSum: '手动安装（复制代码建书签）',
     manualBody: '右键书签栏 → 「添加网页」，名称随意（如 <code>🚀jike2md</code>），点下面的按钮复制书签代码，粘贴到网址栏：',
     copyBtn: '复制代码',
@@ -47,7 +47,9 @@ const T = {
     q3: '导出的条数比作者主页显示的少',
     a3: '确认停留在该作者的主页上再点击（脚本按当前页地址自动识别作者）；「转发且未写评论」的条目会以引用块附上原文，不会丢条。',
     q4: '我的数据安全吗？',
-    a4: 'token 读自你自己浏览器的 localStorage，请求<b>只发往即刻官方接口</b> api.ruguoapp.com，不经任何第三方服务器；导出文件直接从浏览器下载。全部逻辑在单文件 <code>jike2md.src.js</code> 中，安装前可完整审计（见下）。',
+    a4: 'token 读自你自己浏览器的 localStorage，请求<b>只发往即刻官方接口</b> api.ruguoapp.com，不经任何第三方服务器；导出文件直接从浏览器下载。',
+    q5: '导出到一半可以停吗？',
+    a5: '不能中途停止 —— 关闭标签页会丢失已抓内容。动态较多的作者需要几十秒，等浮层提示完成即可。',
     srcH: '源码（透明可审计）',
     srcNote: '这就是书签里那段代码的可读形式 —— 和上面「复制代码」拿到的是同一段逻辑，一个可读、一个已压缩编码。也可以直接查看仓库里的 <code>jike2md.src.js</code>。',
     srcSum: '展开查看完整源码',
@@ -74,7 +76,7 @@ const T = {
     s2t: 'Drag the yellow button onto the bar',
     s2b: 'Press and hold the button below, drag it onto the bookmarks bar at the top of the browser, and release:',
     s2hint: 'Can\'t drag, or prefer not to? The manual way below works exactly the same.',
-    clickHint: 'Hold and drag it onto your bookmarks bar — clicking does not install it.',
+    clickTip: 'This one takes a drag, not a click — drop it on the bookmarks bar to install.',
     manualSum: 'Manual install (copy code, create bookmark)',
     manualBody: 'Right-click the bookmarks bar → "Add page", name it anything (e.g. <code>🚀jike2md</code>), then click the button below to copy the code and paste it into the URL field:',
     copyBtn: 'Copy code',
@@ -93,7 +95,9 @@ const T = {
     q3: 'Fewer posts than shown on the profile',
     a3: 'Make sure you\'re on that author\'s profile when you click (the author is read from the current URL); reposts without a comment include the quoted original, so no posts are lost.',
     q4: 'Is my data safe?',
-    a4: 'The token is read from your own browser\'s localStorage and requests go <b>only to Jike\'s official API</b> (api.ruguoapp.com) — no third-party servers; the file downloads straight from the browser. All logic lives in the single file <code>jike2md.src.js</code>, fully auditable below.',
+    a4: 'The token is read from your own browser\'s localStorage and requests go <b>only to Jike\'s official API</b> (api.ruguoapp.com) — no third-party servers; the file downloads straight from the browser.',
+    q5: 'Can I stop an export midway?',
+    a5: 'No — closing the tab discards everything fetched so far. Prolific authors take under a minute; wait for the overlay to confirm it is done.',
     srcH: 'Source (transparent & auditable)',
     srcNote: 'This is the readable form of the code inside the bookmark — same logic as what the "Copy code" button above gives you, one readable and one URI-encoded. You can also read <code>jike2md.src.js</code> in the repo.',
     srcSum: 'Expand to view the full source',
@@ -106,8 +110,7 @@ const T = {
     copyFail: 'Copy failed — refresh the page and try again, or drag the button to your bookmarks bar instead',
   },
 };
-// 内联到 <script> 里，必须转义 < —— 否则文案中出现 </script> 会提前截断脚本。
-// \u003c 在 JSON 与 JS 字符串中都是合法转义，解析回来的值不变。
+// 防御：文案若含 </script 会提前闭合内联脚本。JSON 里 < 与 \u003c 等价，转义后浏览器解析结果不变
 const dictJson = JSON.stringify(T).replace(/</g, '\\u003c');
 
 const html = `<!DOCTYPE html>
@@ -182,7 +185,6 @@ const html = `<!DOCTYPE html>
     font-weight: 600; font-size: 17px; border: 1px solid #ffd43b; box-shadow: 0 4px 20px rgba(255, 210, 63, .22);
   }
   #bm:hover { filter: brightness(1.06); }
-  #clickhint { display: inline-block; margin-left: 12px; font-size: 13px; color: var(--acc); vertical-align: middle; }
   details { margin-top: 14px; }
   summary { cursor: pointer; color: var(--acc); }
   #srcview { background: #101010; border: 1px solid var(--line); border-radius: 8px; padding: 14px; font: 12px/1.6 monospace; color: #ffe08a; overflow: auto; white-space: pre; }
@@ -255,7 +257,8 @@ const html = `<!DOCTYPE html>
 <div class="step">
   <h3><span class="no">2</span><span data-i18n="s2t">把黄色按钮拖进书签栏</span></h3>
   <p data-i18n="s2b">按住下面的按钮，拖到浏览器上方的书签栏里松手：</p>
-  <p><a id="bm" href="${attr}">🚀jike2md</a><span id="clickhint"></span></p>
+  <p><a id="bm" href="${attr}">🚀jike2md</a></p>
+  <p class="note" id="clickTip" style="color:var(--acc);margin:8px 0 0" hidden></p>
   <p class="note" data-i18n="s2hint">拖不动或不喜欢拖拽？用手动方式，效果完全一样。</p>
   <details>
     <summary data-i18n="manualSum">手动安装（复制代码建书签）</summary>
@@ -280,7 +283,8 @@ const html = `<!DOCTYPE html>
   <tr><td data-i18n="q1">点了书签毫无反应</td><td data-i18n="a1">书签只能在 <code>web.okjike.com</code> 页面上工作；且需确认书签网址以 <code>javascript:</code> 开头（粘贴时前缀可能被浏览器剥掉，手动补上）。</td></tr>
   <tr><td data-i18n="q2">浮层提示 token 无效 / 已过期</td><td data-i18n="a2">刷新 jike 页面（或退出重登）再点一次即可 —— token 取自你登录后的浏览器本地存储。</td></tr>
   <tr><td data-i18n="q3">导出的条数比作者主页显示的少</td><td data-i18n="a3">确认停留在该作者的主页上再点击（脚本按当前页地址自动识别作者）；「转发且未写评论」的条目会以引用块附上原文，不会丢条。</td></tr>
-  <tr><td data-i18n="q4">我的数据安全吗？</td><td data-i18n="a4">token 读自你自己浏览器的 localStorage，请求<b>只发往即刻官方接口</b> api.ruguoapp.com，不经任何第三方服务器；导出文件直接从浏览器下载。全部逻辑在单文件 <code>jike2md.src.js</code> 中，安装前可完整审计（见下）。</td></tr>
+  <tr><td data-i18n="q4">我的数据安全吗？</td><td data-i18n="a4">token 读自你自己浏览器的 localStorage，请求<b>只发往即刻官方接口</b> api.ruguoapp.com，不经任何第三方服务器；导出文件直接从浏览器下载。</td></tr>
+  <tr><td data-i18n="q5">导出到一半可以停吗？</td><td data-i18n="a5">不能中途停止 —— 关闭标签页会丢失已抓内容。动态较多的作者需要几十秒，等浮层提示完成即可。</td></tr>
 </table>
 
 <h2 data-i18n="srcH">源码（透明可审计）</h2>
@@ -317,9 +321,9 @@ const html = `<!DOCTYPE html>
         if (d[k] != null) els[i].innerHTML = d[k];
       }
       document.getElementById('shortcut').textContent = shortcutLabel;
-      var ch = document.getElementById('clickhint');
-      if (ch) ch.textContent = '';
       document.getElementById('langbtn').textContent = lang === 'zh' ? 'EN' : '中文';
+      var ct = document.getElementById('clickTip');
+      if (ct) { ct.hidden = true; ct.textContent = ''; }
       try { localStorage.setItem('jike2md_lang', lang); } catch (e) {}
       cur = lang;
     }
@@ -334,11 +338,11 @@ const html = `<!DOCTYPE html>
       apply(cur === 'zh' ? 'en' : 'zh');
     });
 
-    // 这个按钮本身就是一条 javascript: 书签，直接点击会在安装页上执行书签代码
-    // （路径不是 /u/…，只会弹一句「请先打开作者主页」）。这里拦掉点击，改成提示拖拽。
     document.getElementById('bm').addEventListener('click', function (e) {
       e.preventDefault();
-      document.getElementById('clickhint').textContent = I18N[cur].clickHint;
+      var tip = document.getElementById('clickTip');
+      tip.textContent = I18N[cur].clickTip;
+      tip.hidden = false;
     });
 
     document.getElementById('copy').addEventListener('click', function () {
