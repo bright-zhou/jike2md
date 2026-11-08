@@ -185,6 +185,7 @@ const html = `<!DOCTYPE html>
     font-weight: 600; font-size: 17px; border: 1px solid #ffd43b; box-shadow: 0 4px 20px rgba(255, 210, 63, .22);
   }
   #bm:hover { filter: brightness(1.06); }
+  .bmrow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
   details { margin-top: 14px; }
   summary { cursor: pointer; color: var(--acc); }
   #srcview { background: #101010; border: 1px solid var(--line); border-radius: 8px; padding: 14px; font: 12px/1.6 monospace; color: #ffe08a; overflow: auto; white-space: pre; }
@@ -257,8 +258,7 @@ const html = `<!DOCTYPE html>
 <div class="step">
   <h3><span class="no">2</span><span data-i18n="s2t">把黄色按钮拖进书签栏</span></h3>
   <p data-i18n="s2b">按住下面的按钮，拖到浏览器上方的书签栏里松手：</p>
-  <p><a id="bm" href="${attr}">🚀jike2md</a></p>
-  <p class="note" id="clickTip" style="color:var(--acc);margin:8px 0 0" hidden></p>
+  <p class="bmrow"><a id="bm" href="${attr}">🚀jike2md</a><span class="note" id="clickTip" style="color:var(--acc)" hidden></span></p>
   <p class="note" data-i18n="s2hint">拖不动或不喜欢拖拽？用手动方式，效果完全一样。</p>
   <details>
     <summary data-i18n="manualSum">手动安装（复制代码建书签）</summary>
