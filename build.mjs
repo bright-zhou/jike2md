@@ -30,12 +30,12 @@ const T = {
     s2hint: '拖不动或不喜欢拖拽？用手动方式，效果完全一样。',
     clickTip: '这里需要拖拽而不是点击 —— 拖到书签栏即完成安装。',
     manualSum: '手动安装（复制代码建书签）',
-    manualBody: '右键书签栏 → 「添加网页」，名称随意（如 <code>jike2md</code>），点下面的按钮复制书签代码，粘贴到网址栏：',
+    manualBody: '右键书签栏 → 「添加网页」，名称随意（如 <code>🚀jike2md</code>），点下面的按钮复制书签代码，粘贴到网址栏：',
     copyBtn: '复制代码',
     prefixNote: '注意：部分浏览器往地址栏粘贴时会自动剥掉开头的 <code>javascript:</code> 前缀 —— 请在「添加网页」弹窗的网址栏里粘贴，并确认开头是 <code>javascript:</code>。',
     s3t: '打开一个即刻作者主页，点书签试一次',
     s3b1: '先在浏览器登录 <a href="https://web.okjike.com/" target="_blank" rel="noopener">web.okjike.com</a>，然后进入任意作者主页（地址形如 <code>web.okjike.com/u/…</code>）。',
-    s3b2: '点书签栏上的「jike2md」→ 右上角出现进度浮层，逐页抓取 → 完成后浏览器自动下载 <code>jike-作者名-日期.md</code>。',
+    s3b2: '点书签栏上的「🚀jike2md」→ 右上角出现进度浮层，逐页抓取 → 完成后浏览器自动下载 <code>jike-作者名-日期.md</code>。',
     s3link: '去即刻找个作者主页试试 →',
     tail: '以后每次使用：打开作者主页 → 点书签 → 拿文件。就这一步。',
     faqH: '常见问题',
@@ -79,12 +79,12 @@ const T = {
     s2hint: 'Can\'t drag, or prefer not to? The manual way below works exactly the same.',
     clickTip: 'This one takes a drag, not a click — drop it on the bookmarks bar to install.',
     manualSum: 'Manual install (copy code, create bookmark)',
-    manualBody: 'Right-click the bookmarks bar → "Add page", name it anything (e.g. <code>jike2md</code>), then click the button below to copy the code and paste it into the URL field:',
+    manualBody: 'Right-click the bookmarks bar → "Add page", name it anything (e.g. <code>🚀jike2md</code>), then click the button below to copy the code and paste it into the URL field:',
     copyBtn: 'Copy code',
     prefixNote: 'Note: some browsers strip the leading <code>javascript:</code> prefix when you paste into the address bar — paste into the URL field of the "Add page" dialog and make sure it starts with <code>javascript:</code>.',
     s3t: 'Open a Jike author profile and try it once',
     s3b1: 'Sign in to <a href="https://web.okjike.com/" target="_blank" rel="noopener">web.okjike.com</a> in your browser first, then open any author\'s profile (a URL like <code>web.okjike.com/u/…</code>).',
-    s3b2: 'Click "jike2md" on the bookmarks bar → a progress overlay appears at the top right, fetching page by page → the browser downloads <code>jike-&lt;author&gt;-&lt;date&gt;.md</code> when done.',
+    s3b2: 'Click "🚀jike2md" on the bookmarks bar → a progress overlay appears at the top right, fetching page by page → the browser downloads <code>jike-&lt;author&gt;-&lt;date&gt;.md</code> when done.',
     s3link: 'Try it on a Jike author\'s profile →',
     tail: 'Every time after that: open a profile → click the bookmark → get the file. That\'s it.',
     faqH: 'FAQ',
@@ -135,7 +135,8 @@ const html = `<!DOCTYPE html>
     --bg: #151412; --panel: #1e1c18; --panel2: #262319; --line: #332f24;
     --text: #eceef1; --text-dim: #c9c6bd; --mut: #a09a8c;
     --acc: #ffd23f;         /* 即刻黄（品牌主色） */
-    --acc-deep: #f0b429;    /* 按钮描边等深一档 */
+    --acc-strong: #ffd43b;  /* 渐变亮端 */
+    --acc-deep: #f0b429;    /* 渐变暗端 */
     --acc-ink: #1a1405;     /* 黄底上的深色文字 */
     --line-soft: #454030;   /* kbd 与次按钮描边 */
     --line-hover: #4a4331;  /* 卡片 hover 描边 */
@@ -162,12 +163,11 @@ const html = `<!DOCTYPE html>
   /* ---------- 首屏：品牌与价值主张 ---------- */
   header { text-align: center; padding: 60px 0 8px; }
   .logo {
-    display: inline-flex; align-items: center; gap: 9px;
+    display: inline-flex; align-items: center;
     background: rgba(255, 210, 63, .08);
-    border: 1px solid var(--acc); border-radius: 999px; padding: 9px 24px;
+    border: 1px solid var(--acc); border-radius: 999px; padding: 9px 26px;
     font-size: 19px; font-weight: 700; letter-spacing: 2px; color: var(--acc);
   }
-  .logo svg { display: block; }
   h1 { font-size: 34px; line-height: 1.3; margin: 22px 0 12px; }
   h1 .acc { color: var(--acc); }
   .sub { color: var(--mut); font-size: 16px; max-width: 600px; margin: 0 auto; }
@@ -179,8 +179,7 @@ const html = `<!DOCTYPE html>
   .feats { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); gap: 14px; margin: 40px 0 0; }
   .feat { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 18px 20px; }
   .feat b { display: flex; align-items: center; gap: 10px; margin: 0 0 4px; font-size: 15px; }
-  .fi { display: inline-flex; width: 20px; height: 20px; color: var(--acc); flex: none; }
-  .fi svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .feat .fi { font-size: 20px; }
   .feat p { margin: 0; color: var(--mut); font-size: 13px; }
 
   /* ---------- 步骤 ---------- */
@@ -193,12 +192,11 @@ const html = `<!DOCTYPE html>
 
   /* ---------- 拖拽按钮：黄底深字，品牌记忆点 ---------- */
   #bm {
-    display: inline-flex; align-items: center; gap: 8px;
-    background: var(--acc); color: var(--acc-ink); padding: 14px 26px; border-radius: 12px;
-    text-decoration: none; font-weight: 600; font-size: 17px; border: 1px solid var(--acc-deep);
+    display: inline-block; background: linear-gradient(180deg, var(--acc-strong), var(--acc-deep));
+    color: var(--acc-ink); padding: 14px 28px; border-radius: 12px; text-decoration: none;
+    font-weight: 600; font-size: 17px; border: 1px solid var(--acc-strong); box-shadow: 0 4px 20px rgba(255, 210, 63, .22);
   }
-  #bm svg { display: block; pointer-events: none; }
-  #bm:hover { filter: brightness(1.05); }
+  #bm:hover { filter: brightness(1.06); }
   .bmrow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
   details { margin-top: 14px; }
   summary { cursor: pointer; color: var(--acc); padding: 9px 0; }
@@ -232,7 +230,7 @@ const html = `<!DOCTYPE html>
 <button id="langbtn" class="langbtn" type="button" aria-label="切换界面语言 / Switch language">EN</button>
 
 <header>
-  <div class="logo"><svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 2.5h8a1.2 1.2 0 0 1 1.2 1.2v13.8l-5.2-3.4-5.2 3.4V3.7A1.2 1.2 0 0 1 6 2.5z" fill="currentColor"/></svg>jike2md</div>
+  <div class="logo">🚀jike2md</div>
   <h1 data-i18n="h1">即刻作者动态，<span class="acc">一键变 Markdown</span></h1>
   <p class="sub" data-i18n="sub">在作者主页点一下书签，TA 发过的每一条动态立刻成为一个 .md 文件 —— 留存、回顾、检索，或导入 NotebookLM 等任何工具，怎么用由你决定。</p>
   <div class="flow">
@@ -245,19 +243,19 @@ const html = `<!DOCTYPE html>
 
 <section class="feats">
   <div class="feat">
-    <b><span class="fi"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M10 2.8v9.2"/><path d="M6.4 8.6 10 12.2l3.6-3.6"/><path d="M4 15.4v1.1A1.5 1.5 0 0 0 5.5 18h9a1.5 1.5 0 0 0 1.5-1.5v-1.1"/></svg></span><span data-i18n="f1t">一次点击，全量导出</span></b>
+    <b><span class="fi">⚡</span><span data-i18n="f1t">一次点击，全量导出</span></b>
     <p data-i18n="f1d">自动翻页抓取该作者的全部动态，含图片链接、原文链接；转发的帖子会附上被转原文。</p>
   </div>
   <div class="feat">
-    <b><span class="fi"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M5.6 2.8h8.8a1 1 0 0 1 1 1v13.4l-5.4-3.6-5.4 3.6V3.8a1 1 0 0 1 1-1z"/></svg></span><span data-i18n="f2t">零安装负担</span></b>
+    <b><span class="fi">🧩</span><span data-i18n="f2t">零安装负担</span></b>
     <p data-i18n="f2d">不上应用商店、不装扩展：往书签栏拖一次就能用。即刻若调整接口，重新拖一次即可。</p>
   </div>
   <div class="feat">
-    <b><span class="fi"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><rect x="4.4" y="8.8" width="11.2" height="8.2" rx="1.6"/><path d="M7 8.8V6.4a3 3 0 0 1 6 0v2.4"/></svg></span><span data-i18n="f3t">数据不出你的浏览器</span></b>
+    <b><span class="fi">🔒</span><span data-i18n="f3t">数据不出你的浏览器</span></b>
     <p data-i18n="f3d">token 取自你自己的登录态，请求只发往即刻官方接口，全程没有第三方服务器。</p>
   </div>
   <div class="feat">
-    <b><span class="fi"><svg viewBox="0 0 20 20" aria-hidden="true" focusable="false"><path d="M6 2.8h5.6L15.4 6.6V16a1.2 1.2 0 0 1-1.2 1.2H6A1.2 1.2 0 0 1 4.8 16V4A1.2 1.2 0 0 1 6 2.8z"/><path d="M11.5 2.8v3.9h3.9"/><path d="M7.4 12.2l1.7 1.7 3.1-3.4"/></svg></span><span data-i18n="f4t">单文件源码可审计</span></b>
+    <b><span class="fi">📄</span><span data-i18n="f4t">单文件源码可审计</span></b>
     <p data-i18n="f4d">全部逻辑就在一个源码文件里，本页可直接展开查看，安装前逐行检查。</p>
   </div>
 </section>
@@ -272,11 +270,11 @@ const html = `<!DOCTYPE html>
 <div class="step">
   <h3><span class="no">2</span><span data-i18n="s2t">把黄色按钮拖进书签栏</span></h3>
   <p data-i18n="s2b">按住下面的按钮，拖到浏览器上方的书签栏里松手：</p>
-  <p class="bmrow"><a id="bm" href="${attr}"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" focusable="false"><path d="M6 2.5h8a1.2 1.2 0 0 1 1.2 1.2v13.8l-5.2-3.4-5.2 3.4V3.7A1.2 1.2 0 0 1 6 2.5z" fill="currentColor"/></svg>jike2md</a><span class="note" id="clickTip" role="status" style="color:var(--acc)" hidden></span></p>
+  <p class="bmrow"><a id="bm" href="${attr}">🚀jike2md</a><span class="note" id="clickTip" role="status" style="color:var(--acc)" hidden></span></p>
   <p class="note" data-i18n="s2hint">拖不动或不喜欢拖拽？用手动方式，效果完全一样。</p>
   <details>
     <summary data-i18n="manualSum">手动安装（复制代码建书签）</summary>
-    <p style="margin-bottom:6px" data-i18n="manualBody">右键书签栏 → 「添加网页」，名称随意（如 <code>jike2md</code>），点下面的按钮复制书签代码，粘贴到网址栏：</p>
+    <p style="margin-bottom:6px" data-i18n="manualBody">右键书签栏 → 「添加网页」，名称随意（如 <code>🚀jike2md</code>），点下面的按钮复制书签代码，粘贴到网址栏：</p>
     <p><button id="copy" data-i18n="copyBtn">复制代码</button><span id="hint" role="status"></span></p>
     <p class="note" data-i18n="prefixNote">注意：部分浏览器往地址栏粘贴时会自动剥掉开头的 <code>javascript:</code> 前缀 —— 请在「添加网页」弹窗的网址栏里粘贴，并确认开头是 <code>javascript:</code>。</p>
   </details>
@@ -285,7 +283,7 @@ const html = `<!DOCTYPE html>
 <div class="step">
   <h3><span class="no">3</span><span data-i18n="s3t">打开一个即刻作者主页，点书签试一次</span></h3>
   <p data-i18n="s3b1">先在浏览器登录 <a href="https://web.okjike.com/" target="_blank" rel="noopener">web.okjike.com</a>，然后进入任意作者主页（地址形如 <code>web.okjike.com/u/…</code>）。</p>
-  <p data-i18n="s3b2">点书签栏上的「jike2md」→ 右上角出现进度浮层，逐页抓取 → 完成后浏览器自动下载 <code>jike-作者名-日期.md</code>。</p>
+  <p data-i18n="s3b2">点书签栏上的「🚀jike2md」→ 右上角出现进度浮层，逐页抓取 → 完成后浏览器自动下载 <code>jike-作者名-日期.md</code>。</p>
   <p><a href="https://web.okjike.com/" target="_blank" rel="noopener" data-i18n="s3link">去即刻找个作者主页试试 →</a></p>
 </div>
 
